@@ -28,7 +28,7 @@ class RandomChar extends React.Component {
             .getAllCharacters()
             .then(characters => {
                 const index = Math.floor(Math.random() * characters.length);
-                this.setState({char: characters[index], isLoaded: true});
+                this.setState({char: characters[index], isLoaded:true});
             })
             .catch(this.onError);
     }
@@ -70,7 +70,6 @@ class RandomChar extends React.Component {
             </div>
         )
     }
-    
 }
 
 export default RandomChar;
