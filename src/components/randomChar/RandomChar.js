@@ -7,9 +7,13 @@ import ErrorMsg from '../errorMsg/errorMsg';
 
 class RandomChar extends React.Component {
 
-    constructor(props){
-        super(props);
-        this.getCharacter();
+    componentDidMount(){
+        this.getCharacter()
+        this.timerId = setInterval(this.getCharacter, 60000)
+    }
+
+    componentWillUnmount(){
+        clearInterval(this.timerId);
     }
 
     marvelService = new MarvelService();
@@ -33,14 +37,25 @@ class RandomChar extends React.Component {
         });
     }
 
+    onLoad = () => {
+        this.setState({
+            isLoaded:false
+        });
+    }
+
+    setCharacter = (characters) => {
+        const index = Math.floor(Math.random() * characters.length);
+        this.setState({
+            character: characters[index],
+            isLoaded:true
+        });
+    }
+
     getCharacter = () => {
+        this.onLoad();
         this.marvelService
             .getAllCharacters()
-            // .getCharacter(12345)
-            .then(characters => {
-                const index = Math.floor(Math.random() * characters.length);
-                this.setState({character: characters[index], isLoaded:true});
-            })
+            .then(this.setCharacter)
             .catch(this.onError);
     }
 
@@ -61,7 +76,7 @@ class RandomChar extends React.Component {
                     <p className="randomchar__title">
                         Or choose another one
                     </p>
-                    <button className="button button__main">
+                    <button className="button button__main" onClick={this.getCharacter}>
                         <div className="inner">try it</div>
                     </button>
                     <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
