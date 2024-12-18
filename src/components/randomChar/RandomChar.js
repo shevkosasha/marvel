@@ -2,6 +2,7 @@ import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 import React from 'react';
 import MarvelService from '../../services/MarvelService';
+import Spinner from '../spinner/Spinner';
 
 class RandomChar extends React.Component {
 
@@ -35,7 +36,11 @@ class RandomChar extends React.Component {
 
     render(){
 
-        const {char: {name, descr, thumb, homePage, wiki}} = this.state;
+        const {char: {name, descr, thumb, homePage, wiki}, isLoaded} = this.state;
+        if (!isLoaded) {
+            return <Spinner /> 
+        }
+
         return (
             <div className="randomchar">
                 <div className="randomchar__block">
