@@ -1,7 +1,6 @@
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 import React from 'react';
-import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
 
@@ -15,8 +14,6 @@ class RandomChar extends React.Component {
     componentWillUnmount(){
         clearInterval(this.timerId);
     }
-
-    marvelService = new MarvelService();
 
     state = {
         character: {
@@ -43,18 +40,18 @@ class RandomChar extends React.Component {
         });
     }
 
-    setCharacter = (characters) => {
-        const index = Math.floor(Math.random() * characters.length);
+    setCharacter = (character) => {
         this.setState({
-            character: characters[index],
+            character: character,
             isLoaded:true
         });
     }
 
     getCharacter = () => {
+        const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
         this.onLoad();
-        this.marvelService
-            .getAllCharacters()
+        this.props.marvelService
+            .getCharacter(id)
             .then(this.setCharacter)
             .catch(this.onError);
     }
@@ -88,11 +85,11 @@ class RandomChar extends React.Component {
 
 const RandomCharacterView = ({character}) => {
     
-    const {name, descr, thumb, homePage, wiki} = character;
+    const {name, descr, thumb, homePage, wiki, imgStyle} = character;
     
     return (
         <div className="randomchar__block">
-            <img src={thumb} alt="Random character" className="randomchar__img"/>
+            <img src={thumb} alt="Random character" className="randomchar__img" style={imgStyle}/>
             <div className="randomchar__info">
                 <p className="randomchar__name">{name}</p>
                 <p className="randomchar__descr">{descr}
