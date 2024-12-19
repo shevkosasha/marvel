@@ -2,11 +2,8 @@ import React from 'react';
 import './charList.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
-import MarvelService from '../../services/MarvelService';
 
 class CharList extends React.Component {
-
-    marvelService = new MarvelService();
 
     state = {
         characters: [],
@@ -44,10 +41,14 @@ class CharList extends React.Component {
 
     getCharacters = () => {
         this.onLoad();
-        this.marvelService
+        this.props.marvelService
             .getAllCharacters(this.state.offset)
             .then(this.setCharacters)
             .catch(this.onError);
+    }
+
+    getCharacterInfo = (id) => {
+        this.props.onGetInfo(id)
     }
 
     render(){
@@ -57,7 +58,7 @@ class CharList extends React.Component {
         
         return (
             <div className="char__list">
-                {isLoaded ? <ListItemsView characters={characters}/> : isError ? <ErrorMsg/> : <Spinner/>}
+                {isLoaded ? <ListItemsView characters={characters} onItemClick={this.getCharacterInfo}/> : isError ? <ErrorMsg/> : <Spinner/>}
                 <button className="button button__main button__long" onClick={this.getCharacters}>
                     <div className="inner">load more</div>
                 </button>
@@ -66,13 +67,13 @@ class CharList extends React.Component {
     }
 }
 
-const ListItemsView = ({characters}) => {
+const ListItemsView = ({characters, onItemClick}) => {
 
     const listItems = characters.map(item => {
-        const {id, name, thumb} = item;
+        const {id, name, thumb, imgStyle} = item;
         return (
-                <li className="char__item" key={id}>
-                    <img src={thumb} alt={name}/>
+                <li className="char__item" key={id} onClick={() => onItemClick(id)}>
+                    <img src={thumb} alt={name} style={imgStyle}/>
                     <div className="char__name">{name}</div>
                 </li>
         )

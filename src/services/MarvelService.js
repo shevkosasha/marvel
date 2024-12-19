@@ -1,10 +1,12 @@
-
+import ImgStyleUtil from "../utils/ImgStyleUtil";
 
 class MarvelService {
 
     _apiBase = 'https://gateway.marvel.com:443/v1/public/';
     // ЗДЕСЬ БУДЕТ ВАШ КЛЮЧ, ЭТОТ КЛЮЧ МОЖЕТ НЕ РАБОТАТЬ
     _apiKey = 'apikey=1749c57c3246fa898e1ac80bf89b34b7';
+
+    imgStyleUtil = new ImgStyleUtil();
 
     getResource = async (url) => {
         let res = await fetch(url);
@@ -26,14 +28,21 @@ class MarvelService {
         return this._transformCharacter(res.data.results[0])
     }
 
+    _getImgStyle = (path) => {
+        return  path === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available" 
+                ? {"objectFit":"unset"} 
+                : {"objectFit":"cover"};
+    }
+
     _transformCharacter = (item) => {
         return {
             id: item.id,
             name: item.name,
             descr: item.description,
-            thumb: item.thumbnail.path + '.' + item.thumbnail.extension,
+            thumb: `${item.thumbnail.path}.${item.thumbnail.extension}`,
             homePage: item.resourceURI,
             wiki: item.urls[1].url,
+            imgStyle: this._getImgStyle(item.thumbnail.path),
             comics: item.comics.items
         }
     }
