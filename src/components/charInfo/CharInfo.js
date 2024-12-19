@@ -2,12 +2,10 @@ import { Component } from 'react';
 import './charInfo.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
+import Skeleton from '../skeleton/Skeleton';
 
 class CharInfo extends Component {
 
-    componentDidMount(){
-        this.getCharacter();
-    }
 
     componentDidUpdate(prevProps){
         if (prevProps === this.props) {
@@ -50,7 +48,10 @@ class CharInfo extends Component {
     }
 
     getCharacter = () => {
-        const id = this.props.chosenCharacterId || Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
+        const id = this.props.chosenCharacterId;
+        if (!id) {
+            return;
+        }
         this.onLoad();
         this.props.marvelService
             .getCharacter(id)
@@ -60,11 +61,14 @@ class CharInfo extends Component {
 
     render(){
         const {isLoaded, isError, character} = this.state;
+        const {chosenCharacterId} = this.props;
+        
         return (
             <div className="char__info">
-                {isLoaded 
-                    ? <CharacterInfoView character={character}/> 
-                        : isError ? <ErrorMsg/> : <Spinner/>}
+                {!chosenCharacterId ? <Skeleton/> 
+                 : isLoaded ? <CharacterInfoView character={character}/> 
+                 : isError ? <ErrorMsg/> 
+                 : <Spinner/>}
             </div>
         )
     }
