@@ -6,7 +6,6 @@ import Skeleton from '../skeleton/Skeleton';
 
 class CharInfo extends Component {
 
-
     componentDidUpdate(prevProps){
         if (prevProps === this.props) {
             return;
@@ -105,7 +104,7 @@ const CharacterInfoView = ({character}) => {
             <div className="char__descr">{descr}</div>
             <div className="char__comics">Comics:</div>
             <ul className="char__comics-list">
-                {comicsList}
+                {comics.length > 0 ? comicsList : "No comics found for the character"}
             </ul>
         </>
     )
