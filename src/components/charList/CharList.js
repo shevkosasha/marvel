@@ -7,14 +7,18 @@ class CharList extends React.Component {
 
     state = {
         characters: [],
+        isInitialLoading: true,
         isLoaded: false,
         isError: false,
         offset: 0,
-        limit: 20,
+        limit: 9,
     }
 
     componentDidMount(){
         this.getCharacters();
+        this.setState({
+            isInitialLoading: false, 
+        });
     }
 
     onError = () => {
@@ -42,7 +46,7 @@ class CharList extends React.Component {
     getCharacters = () => {
         this.onLoad();
         this.props.marvelService
-            .getAllCharacters(this.state.offset)
+            .getAllCharacters(this.state.limit, this.state.offset)
             .then(this.setCharacters)
             .catch(this.onError);
     }
@@ -52,19 +56,26 @@ class CharList extends React.Component {
     }
 
     render(){
-        console.log(this.state.characters);
-
-        const {characters, isLoaded, isError} = this.state;
+        const {characters, isLoaded, isInitialLoading, isError} = this.state;
         
         return (
             <div className="char__list">
-                {isLoaded ? <ListItemsView characters={characters} onItemClick={this.getCharacterInfo}/> : isError ? <ErrorMsg/> : <Spinner/>}
-                <button className="button button__main button__long" onClick={this.getCharacters}>
-                    <div className="inner">load more</div>
-                </button>
+                {(!isInitialLoading) 
+                    ? <ListItemsView characters={characters} onItemClick={this.getCharacterInfo}/> 
+                    : isError ? <ErrorMsg/> : null}
+                {isLoaded ? null : <Spinner/>}
+                <LoadMoreBtn onClick={this.getCharacters} disabled={!isLoaded}/>
             </div>
         )
     }
+}
+
+const LoadMoreBtn = ({onClick, disabled}) => {
+    return (
+        <button className="button button__main button__long" onClick={onClick} disabled={disabled}>
+            <div className="inner">load more</div>
+        </button>
+    )
 }
 
 const ListItemsView = ({characters, onItemClick}) => {
