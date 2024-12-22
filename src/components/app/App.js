@@ -12,29 +12,31 @@ import MarvelService from '../../services/MarvelService';
 class App extends Component {
 
     state = {
-        chosenCharacterId: null,
+        characterId: null,
     }
 
     marvelService = new MarvelService();
 
-    setChosenCharacter = (id) => {
+    setCharacter = (id) => {
         this.setState({
-            chosenCharacterId: id,
+            characterId: id,
         });
     }
-
-
 
     render(){
         return (
             <div className="app">
                 <AppHeader/>
                 <main>
-                    <RandomChar marvelService={this.marvelService}/>
+                    <ErrorBoundary>
+                        <RandomChar marvelService={this.marvelService}/>
+                    </ErrorBoundary>
                     <div className="char__content">
-                        <CharList onGetInfo={this.setChosenCharacter} marvelService={this.marvelService}/>
                         <ErrorBoundary>
-                            <CharInfo chosenCharacterId={this.state.chosenCharacterId} marvelService={this.marvelService}/>
+                            <CharList onGetInfo={this.setCharacter} marvelService={this.marvelService}/>
+                        </ErrorBoundary>
+                        <ErrorBoundary>
+                            <CharInfo characterId={this.state.characterId} marvelService={this.marvelService}/>
                         </ErrorBoundary>
                     </div>
                     <img className="bg-decoration" src={decoration} alt="vision"/>

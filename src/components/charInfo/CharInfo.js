@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import './charInfo.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
@@ -47,7 +48,7 @@ class CharInfo extends Component {
     }
 
     getCharacter = () => {
-        const id = this.props.chosenCharacterId;
+        const id = this.props.characterId;
         if (!id) {
             return;
         }
@@ -60,11 +61,11 @@ class CharInfo extends Component {
 
     render(){
         const {isLoaded, isError, character} = this.state;
-        const {chosenCharacterId} = this.props;
+        const {characterId} = this.props;
         
         return (
             <div className="char__info">
-                {!chosenCharacterId ? <Skeleton/> 
+                {!characterId ? <Skeleton/> 
                  : isLoaded ? <CharacterInfoView character={character}/> 
                  : isError ? <ErrorMsg/> 
                  : <Spinner/>}
@@ -108,6 +109,11 @@ const CharacterInfoView = ({character}) => {
             </ul>
         </>
     )
+}
+
+CharInfo.propTypes = {
+    characterId: PropTypes.number,
+    onGetInfo: PropTypes.func,
 }
 
 export default CharInfo;
