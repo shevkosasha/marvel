@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React,{ Component } from 'react';
 import PropTypes from 'prop-types';
 import './charInfo.scss';
 import Spinner from '../spinner/Spinner';
@@ -7,11 +7,18 @@ import Skeleton from '../skeleton/Skeleton';
 
 class CharInfo extends Component {
 
+    constructor(props){
+        super(props);
+        this.divRef = null;
+        this.setRef = el => this.divRef = el;
+    }
+
     componentDidUpdate(prevProps){
         if (prevProps === this.props) {
             return;
         }
         this.getCharacter();
+        this.focusDivRef();
     }
 
     state = {
@@ -25,6 +32,12 @@ class CharInfo extends Component {
         },
         isLoaded: false,
         isError: false,
+    }
+
+    focusDivRef = () => {
+        if (this.divRef) {
+            this.divRef.focus();
+        }
     }
 
     onError = () => {
@@ -64,7 +77,7 @@ class CharInfo extends Component {
         const {characterId} = this.props;
         
         return (
-            <div className="char__info">
+            <div className="char__info" ref={this.setRef}>
                 {!characterId ? <Skeleton/> 
                  : isLoaded ? <CharacterInfoView character={character}/> 
                  : isError ? <ErrorMsg/> 
