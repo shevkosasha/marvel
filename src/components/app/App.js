@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState } from "react";
 import AppHeader from "../appHeader/AppHeader";
 import RandomChar from "../randomChar/RandomChar";
 import CharList from "../charList/CharList";
@@ -9,41 +9,33 @@ import decoration from '../../resources/img/vision.png';
 
 import MarvelService from '../../services/MarvelService';
 
-class App extends Component {
+const marvelService = new MarvelService();
 
-    state = {
-        characterId: null,
-    }
+const App = () => {
 
-    marvelService = new MarvelService();
+    const [characterId, setCharacterId] = useState(null);
 
-    setCharacter = (id) => {
-        this.setState({
-            characterId: id,
-        });
-    }
+    const onCharacterSelect = (id) => setCharacterId(id)
 
-    render(){
-        return (
-            <div className="app">
-                <AppHeader/>
-                <main>
+    return (
+        <div className="app">
+            <AppHeader/>
+            <main>
+                <ErrorBoundary>
+                    <RandomChar marvelService={marvelService}/>
+                </ErrorBoundary>
+                <div className="char__content">
                     <ErrorBoundary>
-                        <RandomChar marvelService={this.marvelService}/>
+                        <CharList onGetInfo={onCharacterSelect} marvelService={marvelService}/>
+                    </ErrorBoundary>     
+                    <ErrorBoundary>
+                        <CharInfo characterId={characterId} marvelService={marvelService}/>
                     </ErrorBoundary>
-                    <div className="char__content">
-                        <ErrorBoundary>
-                            <CharList onGetInfo={this.setCharacter} marvelService={this.marvelService}/>
-                        </ErrorBoundary>
-                        <ErrorBoundary>
-                            <CharInfo characterId={this.state.characterId} marvelService={this.marvelService}/>
-                        </ErrorBoundary>
-                    </div>
-                    <img className="bg-decoration" src={decoration} alt="vision"/>
-                </main>
-            </div>
-        )
-    }
+                </div>
+                <img className="bg-decoration" src={decoration} alt="vision"/>
+            </main>
+        </div>
+    )
 }
 
 export default App;
