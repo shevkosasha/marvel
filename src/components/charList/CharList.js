@@ -1,73 +1,88 @@
-import React, { Component } from 'react';
+import {useState, useEffect, useRef} from 'react';
 import './charList.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
 
-class CharList extends React.Component {
+const CharList = (props) => {
 
-    state = {
-        characters: [],
-        isInitialLoading: true,
-        isLoaded: false,
-        isError: false,
-        offset: 0,
-        limit: 9,
+    const [characters, setCharacters] = useState([]);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [isError, setIsError] = useState(false);
+    const [offset, setOffset] = useState(0);
+    const [limit, setLimit] = useState(9);
+
+    useEffect( () => {
+       getCharacters();
+       setIsInitialLoading(false);
+    }, []);
+
+    const getCharacters = () => {
+        setIsLoaded(false);
+        props.marvelService
+            .getAllCharacters(limit, offset)
+            .then((newCharacters) => {
+                setCharacters([...characters, ...newCharacters])
+                setIsLoaded(true)
+                setOffset(offset => offset + limit)
+            })
+            .catch(() => {
+                setIsError(true)
+            })
     }
 
-    componentDidMount(){
-        this.getCharacters();
-        this.setState({
-            isInitialLoading: false, 
-        });
+    const getCharacterInfo = (id) => props.onGetInfo(id)
+
+    return (
+        <div className="char__list">
+            {(!isInitialLoading) 
+                ? <ListItemsView characters={characters} onItemClick={getCharacterInfo} /> 
+                : isError ? <ErrorMsg/> : null}
+            {isLoaded ? null : <Spinner/>}
+            <LoadMoreBtn onClick={getCharacters} disabled={!isLoaded}/>
+        </div>
+    )
+}
+
+const ListItemsView = ({characters, onItemClick}) => {
+
+    let refs = useRef(null); 
+    const [activeId, setActiveId] = useState(null);
+
+    const handleClick = (id, i, onClickFunc) => {
+        id = id === activeId ? null : id;
+        onClickFunc(id);
+        setActiveId(id);
+        setFocus(i);
     }
 
-    onError = () => {
-        this.setState({
-            isError: true, 
-            isLoaded:false
-        });
+    const setRef = (ref) => {
+        const refsArr = !Array.isArray(refs) ? [] : [...refs];
+        if (ref){
+            refsArr.push(ref);
+            refs = [...refsArr];
+        }
     }
 
-    onLoad = () => {
-        this.setState({
-            isLoaded:false
-        });
-    }
+    const setFocus = (i) => refs[i].focus();
 
-    setCharacters = (newCharacters) => {
-        const {characters, offset, limit} = this.state;
-        this.setState({
-            characters: [...characters, ...newCharacters],
-            isLoaded: true,
-            offset: offset + limit,
-        });
-    }
+    const listItems = characters.map((item, i) => {
+        const {id, name, thumb, imgStyle} = item;
+        const className = id === activeId ? "char__item_selected" : "char__item";
 
-    getCharacters = () => {
-        this.onLoad();
-        this.props.marvelService
-            .getAllCharacters(this.state.limit, this.state.offset)
-            .then(this.setCharacters)
-            .catch(this.onError);
-    }
-
-    getCharacterInfo = (id) => {
-        this.props.onGetInfo(id)
-    }
-
-    render(){
-        const {characters, isLoaded, isInitialLoading, isError} = this.state;
-        
         return (
-            <div className="char__list">
-                {(!isInitialLoading) 
-                    ? <ListItemsView characters={characters} onItemClick={this.getCharacterInfo} /> 
-                    : isError ? <ErrorMsg/> : null}
-                {isLoaded ? null : <Spinner/>}
-                <LoadMoreBtn onClick={this.getCharacters} disabled={!isLoaded}/>
-            </div>
+            <li className={className} key={id} ref={setRef} onClick={() => handleClick(id, i, onItemClick)}>
+                <img src={thumb} alt={name} style={imgStyle}/>
+                <div className="char__name">{name}</div>
+            </li>
         )
-    }
+    })
+    
+    return (
+        <ul className="char__grid">
+            {listItems}
+        </ul>
+    )
 }
 
 const LoadMoreBtn = ({onClick, disabled}) => {
@@ -77,79 +92,5 @@ const LoadMoreBtn = ({onClick, disabled}) => {
         </button>
     )
 }
-
-class ListItemsView extends Component {
-    refs = null;
-
-    setRef = (ref) => {
-        const refsArr = !Array.isArray(this.refs) ? [] : [...this.refs];
-        if (ref){
-            refsArr.push(ref);
-            this.refs = [...refsArr];
-        }
-    }
-
-    state = {
-        activeItemId: null,
-    }
-
-    setActive = (id) => {
-        this.setState({
-            activeItemId: id,
-        });
-    }
-
-    handleClick(id, i, onClickFunc){
-        id = id === this.state.activeItemId ? null : id;
-        onClickFunc(id);
-        this.setActive(id);
-        // this.setFocus(i);
-    }
-
-    setFocus = (i) => {
-        this.refs[i].focus();
-    }
-
-    render(){
-        const {characters, onItemClick} = this.props;
-
-        const listItems = characters.map((item, i) => {
-            const {id, name, thumb, imgStyle} = item;
-            const className = id === this.state.activeItemId ? "char__item_selected" : "char__item";
-
-            return (
-                <li className={className} key={id} ref={this.setRef} onClick={() => this.handleClick(id, i, onItemClick)}>
-                    <img src={thumb} alt={name} style={imgStyle}/>
-                    <div className="char__name">{name}</div>
-                </li>
-            )
-        })
-
-        return (
-            <ul className="char__grid">
-                {listItems}
-            </ul>
-        )
-    }
-}
-
-// const ListItemsView ({characters, onItemClick}) => {
-
-//     const listItems = characters.map(item => {
-//         const {id, name, thumb, imgStyle} = item;
-//         return (
-//                 <li className="char__item" key={id} onClick={() => onItemClick(id)}>
-//                     <img src={thumb} alt={name} style={imgStyle}/>
-//                     <div className="char__name">{name}</div>
-//                 </li>
-//         )
-//     })
-    
-//     return (
-//         <ul className="char__grid">
-//             {listItems}
-//         </ul>
-//     )
-// }
 
 export default CharList;
