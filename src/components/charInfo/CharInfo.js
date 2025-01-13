@@ -1,97 +1,53 @@
-import React,{ Component } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import './charInfo.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
 import Skeleton from '../skeleton/Skeleton';
 
-class CharInfo extends Component {
+const CharInfo = (props) => {
 
-    constructor(props){
-        super(props);
-        this.divRef = null;
-        this.setRef = el => this.divRef = el;
-    }
+    const {characterId} = props;
 
-    componentDidUpdate(prevProps){
-        if (prevProps === this.props) {
+    let [character, setCharacter] = useState({})
+    const [isLoading, setLoading] = useState(false)
+    const [isError, setError] = useState(false)
+
+    useEffect( () => {
+        getCharacter();
+    }, [characterId]);
+
+    const setLoadingState = (state) => setLoading(state);
+
+    const getCharacter = () => {
+        if (!characterId) {
             return;
         }
-        this.getCharacter();
-        this.focusDivRef();
+        setLoadingState(true);
+        props.marvelService
+            .getCharacter(characterId)
+            .then((char) => {
+                setLoadingState(false)
+                setCharacter(char);
+            })
+            .catch((err) => setError(true));
     }
 
-    state = {
-        character: {
-            name: null,
-            descr: null,
-            thumb: null,
-            homePage: null,
-            wiki: null,
-            comics: []
-        },
-        isLoaded: false,
-        isError: false,
-    }
-
-    focusDivRef = () => {
-        if (this.divRef) {
-            this.divRef.focus();
-        }
-    }
-
-    onError = () => {
-        this.setState({
-            isError: true, 
-            isLoaded:false
-        });
-    }
-
-    onLoad = () => {
-        this.setState({
-            isLoaded:false
-        });
-    }
-
-    setCharacter = (characters) => {
-        this.setState({
-            character: characters,
-            isLoaded:true
-        });
-    }
-
-    getCharacter = () => {
-        const id = this.props.characterId;
-        if (!id) {
-            return;
-        }
-        this.onLoad();
-        this.props.marvelService
-            .getCharacter(id)
-            .then(this.setCharacter)
-            .catch(this.onError);
-    }
-
-    render(){
-        const {isLoaded, isError, character} = this.state;
-        const {characterId} = this.props;
-        
-        return (
-            <div className="char__info" ref={this.setRef}>
-                {!characterId ? <Skeleton/> 
-                 : isLoaded ? <CharacterInfoView character={character}/> 
-                 : isError ? <ErrorMsg/> 
-                 : <Spinner/>}
-            </div>
-        )
-    }
+    return (
+        <div className="char__info" >
+            {!characterId ? <Skeleton/> 
+                : isLoading ?  <Spinner/>
+                : isError ? <ErrorMsg/> 
+                : <CharacterInfoView character={character}/>}
+        </div>
+    )
 }
 
 const CharacterInfoView = ({character}) => {
 
     const {name, descr, thumb, homePage, wiki, imgStyle, comics} = character;
 
-    const comicsList = comics.map((item, index) => {
+    const comicsList = !Array.isArray(comics) ? [] : comics.map((item, index) => {
         return (
             <li className="char__comics-item" key={index}>
                 {item.name}
@@ -118,7 +74,7 @@ const CharacterInfoView = ({character}) => {
             <div className="char__descr">{descr}</div>
             <div className="char__comics">Comics:</div>
             <ul className="char__comics-list">
-                {comics.length > 0 ? comicsList : "No comics found for the character"}
+                {comicsList.length > 0 ? comicsList : "No comics found for the character"}
             </ul>
         </>
     )
