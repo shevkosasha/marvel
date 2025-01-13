@@ -17,15 +17,17 @@ const CharInfo = (props) => {
         getCharacter();
     }, [characterId]);
 
+    const setLoadingState = (state) => setLoading(state);
+
     const getCharacter = () => {
         if (!characterId) {
             return;
         }
-        setLoading(true);
+        setLoadingState(true);
         props.marvelService
             .getCharacter(characterId)
             .then((char) => {
-                setLoading(false)
+                setLoadingState(false)
                 setCharacter(char);
             })
             .catch((err) => setError(true));
