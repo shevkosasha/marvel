@@ -46,7 +46,7 @@ const CharList = (props) => {
 
 const ListItemsView = ({characters, onItemClick}) => {
 
-    let refs = useRef(null); 
+    let refs = useRef([]); 
     const [activeId, setActiveId] = useState(null);
 
     const handleClick = (id, i, onClickFunc) => {
@@ -54,6 +54,12 @@ const ListItemsView = ({characters, onItemClick}) => {
         onClickFunc(id);
         setActiveId(id);
         setFocus(i);
+    }
+
+    const handleKeyUp = (e, id, i, onClickFunc) => {
+        if (e.key == ' ' || e.key === "Enter"){
+            handleClick(id, i, onClickFunc)
+        }
     }
 
     const setRef = (ref) => {
@@ -71,7 +77,7 @@ const ListItemsView = ({characters, onItemClick}) => {
         const className = id === activeId ? "char__item_selected" : "char__item";
 
         return (
-            <li className={className} key={id} ref={setRef} onClick={() => handleClick(id, i, onItemClick)}>
+            <li className={className} tabIndex={0} key={id} ref={setRef} onClick={() => handleClick(id, i, onItemClick)} onKeyUp={(e) => handleKeyUp(e, id, i, onItemClick)}>
                 <img src={thumb} alt={name} style={imgStyle}/>
                 <div className="char__name">{name}</div>
             </li>
