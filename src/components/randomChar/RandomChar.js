@@ -4,36 +4,31 @@ import mjolnir from '../../resources/img/mjolnir.png';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
 
-const RandomChar = (props) => {
+import MarvelService from '../../services/MarvelService';
+
+const RandomChar = () => {
 
     let [character, setCharacter] = useState({});
-    const [isLoading, setLoading] = useState(false);
-    const [isError, setError] = useState(false);
+
+    const {isLoading, error, getCharacter, clearError} = MarvelService();
 
     useEffect( () => {
-        getCharacter();
-        const timerId = setInterval(getCharacter, 60000);
+        updateCharacter();
+        const timerId = setInterval(updateCharacter, 60000);
         return () => clearInterval(timerId);
     }, []);
 
-    const setLoadingState = (state) => setLoading(state);
-
-    const getCharacter = () => {
+    const updateCharacter = () => {
+        clearError();
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-        setLoadingState(true);
-        props.marvelService
-            .getCharacter(id)
-            .then((char) => {
-                setLoadingState(false);
-                setCharacter(char);
-            })
-            .catch((err) => setError(true));
+        getCharacter(id)
+            .then(setCharacter)
     }
 
     return (
         <div className="randomchar">
             {isLoading ? <Spinner/>  
-                : isError ? <ErrorMsg/> 
+                : error ? <ErrorMsg/> 
                 : <RandomCharacterView character={character}/>}
             <div className="randomchar__static">
                 <p className="randomchar__title">
@@ -43,7 +38,7 @@ const RandomChar = (props) => {
                 <p className="randomchar__title">
                     Or choose another one
                 </p>
-                <button className="button button__main" onClick={getCharacter}>
+                <button className="button button__main" onClick={updateCharacter}>
                     <div className="inner">try it</div>
                 </button>
                 <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>

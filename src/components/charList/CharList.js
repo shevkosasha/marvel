@@ -2,15 +2,15 @@ import {useState, useEffect, useRef} from 'react';
 import './charList.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
+import MarvelService from '../../services/MarvelService';
 
 const CharList = (props) => {
 
     const [characters, setCharacters] = useState([]);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [isError, setIsError] = useState(false);
     const [offset, setOffset] = useState(0);
     const [limit, setLimit] = useState(9);
+    const {isLoading, error, getAllCharacters, clearError} = MarvelService();
 
     useEffect( () => {
        getCharacters();
@@ -18,16 +18,11 @@ const CharList = (props) => {
     }, []);
 
     const getCharacters = () => {
-        setIsLoaded(false);
-        props.marvelService
-            .getAllCharacters(limit, offset)
+        clearError();
+            getAllCharacters(limit, offset)
             .then((newCharacters) => {
                 setCharacters([...characters, ...newCharacters])
-                setIsLoaded(true)
                 setOffset(offset => offset + limit)
-            })
-            .catch(() => {
-                setIsError(true)
             })
     }
 
@@ -37,9 +32,9 @@ const CharList = (props) => {
         <div className="char__list">
             {(!isInitialLoading) 
                 ? <ListItemsView characters={characters} onItemClick={getCharacterInfo} /> 
-                : isError ? <ErrorMsg/> : null}
-            {isLoaded ? null : <Spinner/>}
-            <LoadMoreBtn onClick={getCharacters} disabled={!isLoaded}/>
+                : error ? <ErrorMsg/> : null}
+            {!isLoading ? null : <Spinner/>}
+            <LoadMoreBtn onClick={getCharacters} disabled={isLoading}/>
         </div>
     )
 }

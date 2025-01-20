@@ -7,9 +7,6 @@ import ErrorBoundary from "../errorBoundary/ErrorBoundary";
 
 import decoration from '../../resources/img/vision.png';
 
-import MarvelService from '../../services/MarvelService';
-
-const marvelService = new MarvelService();
 
 const App = () => {
 
@@ -22,14 +19,14 @@ const App = () => {
             <AppHeader/>
             <main>
                 <ErrorBoundary>
-                    <RandomChar marvelService={marvelService}/>
+                    <RandomChar/>
                 </ErrorBoundary>
                 <div className="char__content">
                     <ErrorBoundary>
-                        <CharList onGetInfo={onCharacterSelect} marvelService={marvelService}/>
+                        <CharList onGetInfo={onCharacterSelect}/>
                     </ErrorBoundary>     
                     <ErrorBoundary>
-                        <CharInfo characterId={characterId} marvelService={marvelService}/>
+                        <CharInfo characterId={characterId}/>
                     </ErrorBoundary>
                 </div>
                 <img className="bg-decoration" src={decoration} alt="vision"/>
