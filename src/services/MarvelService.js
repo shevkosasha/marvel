@@ -1,40 +1,42 @@
 import ImgStyleUtil from "../utils/ImgStyleUtil";
+import { useHttp } from "../hooks/http.hook";
 
-class MarvelService {
+const MarvelService = () => {
 
-    _apiBase = 'https://gateway.marvel.com:443/v1/public/';
-    // ЗДЕСЬ БУДЕТ ВАШ КЛЮЧ, ЭТОТ КЛЮЧ МОЖЕТ НЕ РАБОТАТЬ
-    _apiKey = 'apikey=1749c57c3246fa898e1ac80bf89b34b7';
+    const {isLoading, error, request, clearError} = useHttp();
 
-    imgStyleUtil = new ImgStyleUtil();
+    const _apiBase = 'https://gateway.marvel.com:443/v1/public/';
+    const _apiKey = 'apikey=1749c57c3246fa898e1ac80bf89b34b7';
 
-    getResource = async (url) => {
-        let res = await fetch(url);
+    const imgStyleUtil = new ImgStyleUtil();
+
+    // getResource = async (url) => {
+    //     let res = await fetch(url);
     
-        if (!res.ok) {
-            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
-        }
+    //     if (!res.ok) {
+    //         throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+    //     }
     
-        return await res.json();
+    //     return await res.json();
+    // }
+
+    const getAllCharacters = async (limit = 18, offset = 0) => {
+        const res = await request(`${_apiBase}characters?limit=${limit}&offset=${offset}&${_apiKey}`);
+        return res.data.results.map(_transformCharacter);
     }
 
-    getAllCharacters = async (limit = 18, offset = 0) => {
-        const res = await this.getResource(`${this._apiBase}characters?limit=${limit}&offset=${offset}&${this._apiKey}`);
-        return res.data.results.map(this._transformCharacter);
+    const getCharacter = async (id) => {
+        const res = await request(`${_apiBase}characters/${id}?${_apiKey}`);
+        return _transformCharacter(res.data.results[0])
     }
 
-    getCharacter = async (id) => {
-        const res = await this.getResource(`${this._apiBase}characters/${id}?${this._apiKey}`);
-        return this._transformCharacter(res.data.results[0])
-    }
-
-    _getImgStyle = (path) => {
+    const _getImgStyle = (path) => {
         return  path === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available" 
                 ? {"objectFit":"unset"} 
                 : {"objectFit":"cover"};
     }
 
-    _transformCharacter = (item) => {
+    const _transformCharacter = (item) => {
         return {
             id: item.id,
             name: item.name,
@@ -42,10 +44,12 @@ class MarvelService {
             thumb: `${item.thumbnail.path}.${item.thumbnail.extension}`,
             homePage: item.resourceURI,
             wiki: item.urls[1].url,
-            imgStyle: this._getImgStyle(item.thumbnail.path),
+            imgStyle: _getImgStyle(item.thumbnail.path),
             comics: item.comics.items
         }
     }
+
+    return {isLoading, error, getAllCharacters, getCharacter, clearError}
 }
 
 export default MarvelService;
