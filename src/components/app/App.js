@@ -7,6 +7,7 @@ import ErrorBoundary from "../errorBoundary/ErrorBoundary";
 
 import decoration from '../../resources/img/vision.png';
 import ComicsList from "../comicsList/ComicsList";
+import AppBanner from "../appBanner/AppBanner";
 
 
 const App = () => {
@@ -16,10 +17,6 @@ const App = () => {
 
     const onCharacterSelect = (id) => setCharacterId(id)
     const onComicsSelect = (id) => setComicsId(id)
-
-    useEffect( () => {
-        console.log(comicsId);
-    }, [comicsId]);
 
     return (
         <div className="app">
@@ -37,7 +34,7 @@ const App = () => {
                     </ErrorBoundary>
                 </div> */}
                 {/* <img className="bg-decoration" src={decoration} alt="vision"/> */}
-
+                <AppBanner />
                 <ErrorBoundary>
                     <ComicsList onGetInfo={onComicsSelect}/>
                 </ErrorBoundary>
