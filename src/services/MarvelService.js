@@ -30,6 +30,16 @@ const MarvelService = () => {
         return _transformCharacter(res.data.results[0])
     }
 
+    const getAllComics = async (limit = 18, offset = 0) => {
+		const res = await request(`${_apiBase}comics?orderBy=issueNumber&limit=${limit}&offset=${offset}&${_apiKey}`);
+		return res.data.results.map(_transformComics);
+	};
+
+	const getComics = async (id) => {
+		const res = await request(`${_apiBase}comics/${id}?${_apiKey}`);
+		return _transformComics(res.data.results[0]);
+	};
+
     const _getImgStyle = (path) => {
         return  path === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available" 
                 ? {"objectFit":"unset"} 
@@ -49,7 +59,24 @@ const MarvelService = () => {
         }
     }
 
-    return {isLoading, error, getAllCharacters, getCharacter, clearError}
+    const _transformComics = (comics) => {
+		return {
+			id: comics.id,
+			title: comics.title,
+			description: comics.description || "There is no description",
+			pageCount: comics.pageCount
+				? `${comics.pageCount} p.`
+				: "No information about the number of pages",
+			thumbnail: comics.thumbnail.path + "." + comics.thumbnail.extension,
+			language: comics.textObjects[0]?.language || "en-us",
+			// optional chaining operator
+			price: comics.prices[0].price
+				? `${comics.prices[0].price}$`
+				: "not available",
+		};
+	};
+
+    return {isLoading, error, getAllCharacters, getCharacter, getAllComics, getComics, clearError}
 }
 
 export default MarvelService;
