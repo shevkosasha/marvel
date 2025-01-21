@@ -3,6 +3,7 @@ import './charList.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
 import MarvelService from '../../services/MarvelService';
+import { LoadMoreBtn } from '../LoadMoreButton/LoadMoreButton';
 
 const CharList = (props) => {
 
@@ -86,12 +87,12 @@ const ListItemsView = ({characters, onItemClick}) => {
     )
 }
 
-const LoadMoreBtn = ({onClick, disabled}) => {
-    return (
-        <button className="button button__main button__long" onClick={onClick} disabled={disabled}>
-            <div className="inner">load more</div>
-        </button>
-    )
-}
+// const LoadMoreBtn = ({onClick, disabled}) => {
+//     return (
+//         <button className="button button__main button__long" onClick={onClick} disabled={disabled}>
+//             <div className="inner">load more</div>
+//         </button>
+//     )
+// }
 
 export default CharList;
