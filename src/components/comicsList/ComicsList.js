@@ -1,4 +1,5 @@
 import {useState, useEffect, useRef} from 'react';
+import { Link } from 'react-router-dom';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
 import MarvelService from '../../services/MarvelService';
@@ -81,11 +82,11 @@ const ListItemsView = ({comics, onItemClick}) => {
 
         return (
             <li className="comics__item" key={i}  ref={setRef} onClick={() => handleClick(id, i, onItemClick)} onKeyUp={(e) => handleKeyUp(e, id, i, onItemClick)}>
-                <a href="#">
+                <Link to={`/comics/${id}`}>
                     <img src={thumbnail} alt={title} className="comics__item-img"/>
                     <div className="comics__item-name">{title}</div>
                     <div className="comics__item-price">{price}</div>
-                </a>
+                </Link>
             </li>
         )
     })
