@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import './charInfo.scss';
 import Spinner from '../spinner/Spinner';
@@ -17,6 +18,12 @@ const CharInfo = (props) => {
         getCharacterInfo();
     }, [characterId]);
 
+    const navigate = useNavigate();
+    const handleClick = (url, charId) => {
+        navigate(url);
+        // window.history.pushState({ charId },'')
+    }
+
     const getCharacterInfo = () => {
         if (!characterId) {
             return;
@@ -31,19 +38,22 @@ const CharInfo = (props) => {
             {!characterId ? <Skeleton/> 
                 : isLoading ?  <Spinner/>
                 : error ? <ErrorMsg/> 
-                : <CharacterInfoView character={character}/>}
+                : <CharacterInfoView character={character} handleClick={handleClick}/>}
         </div>
     )
 }
 
-const CharacterInfoView = ({character}) => {
+const CharacterInfoView = ({character, handleClick}) => {
 
-    const {name, descr, thumb, homePage, wiki, imgStyle, comics} = character;
+    const {id, name, descr, thumb, homePage, wiki, imgStyle, comics} = character;
 
     const comicsList = !Array.isArray(comics) ? [] : comics.map((item, index) => {
+        const {name, resourceURI} = item
         return (
-            <li className="char__comics-item" key={index}>
-                {item.name}
+            <li className="char__comics-item" key={index} /*onClick={() => handleClick(`${resourceURI}?charId=${id}`, id)}*/>
+                <Link to={`${resourceURI}`} state={{ charId: id }}>
+                    {name}
+                </Link>
             </li>
         )
     })

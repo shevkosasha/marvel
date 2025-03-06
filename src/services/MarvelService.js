@@ -43,7 +43,7 @@ const MarvelService = () => {
             homePage: item.resourceURI,
             wiki: item.urls[1].url,
             imgStyle: _getImgStyle(item.thumbnail.path),
-            comics: item.comics.items
+            comics: item.comics.items.map(i => {return {name: i.name, resourceURI: i.resourceURI.slice(i.resourceURI.indexOf('/comics'))}})
         }
     }
 

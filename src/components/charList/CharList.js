@@ -1,21 +1,34 @@
 import {useState, useEffect, useRef} from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import './charList.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMsg from '../errorMsg/errorMsg';
 import MarvelService from '../../services/MarvelService';
 import { LoadMoreBtn } from '../LoadMoreButton/LoadMoreButton';
 
+let location;
+
 const CharList = (props) => {
+
+    location = useLocation();
+    // const data = location.state;
+    console.log(JSON.stringify(location));
 
     const [characters, setCharacters] = useState([]);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [offset, setOffset] = useState(0);
     const [limit, setLimit] = useState(9);
     const {isLoading, error, getAllCharacters, clearError} = MarvelService();
+    // const {activeItemId, setActiveItemId} = useState(null);
+    // console.log(window.history.state);
 
     useEffect( () => {
+
        getCharacters();
        setIsInitialLoading(false);
+    //    if (id) {
+    //         getCharacterInfo(id);      
+    //    }
     }, []);
 
     const getCharacters = () => {
@@ -69,8 +82,13 @@ const ListItemsView = ({characters, onItemClick}) => {
     const setFocus = (i) => refs[i].focus();
 
     const listItems = characters.map((item, i) => {
+        // console.log(activeItemId);
+        // const location = useLocation();
+    // const data = location.state;
+        console.log(JSON.stringify(location));
+        
         const {id, name, thumb, imgStyle} = item;
-        const className = id === activeId ? "char__item_selected" : "char__item";
+        const className = activeId && id === activeId ? "char__item_selected" : "char__item";
 
         return (
             <li className={className} tabIndex={0} key={id} ref={setRef} onClick={() => handleClick(id, i, onItemClick)} onKeyUp={(e) => handleKeyUp(e, id, i, onItemClick)}>
